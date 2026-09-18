@@ -1,0 +1,35 @@
+# Environment & Secrets
+.env
+*.env
+.env.*
+!.env.example
+
+# Virtual Environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# IDE / Editor Settings
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Large / Generated Data & Uploads
+splitedtext*.json
+backend/uploaded_files/*
+!backend/uploaded_files/.gitkeep
+
+# Logs & Temporary Files
+*.log
+*.tmp
+.DS_Store
+Thumbs.db

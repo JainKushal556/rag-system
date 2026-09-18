@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app-layout">
+        
+        <!-- 1. UPLOAD & KNOWLEDGE BASE PANEL (LEFT) -->
+        <aside class="upload-panel">
+            <!-- LOCALIZED LOADER OVERLAY (ONLY OVER THIS PANEL) -->
+            <div class="upload-loader-overlay" id="upload-loader" style="display: none;">
+                <div class="spinner"></div>
+                <p class="loader-title">Vectorizing & Ingesting...</p>
+                <span class="loader-sub">Generating 1536d embeddings in pgvector</span>
+            </div>
+
+            <div class="panel-header">
+                <h2>Knowledge Base</h2>
+                <p>Upload documents to index into pgvector.</p>
+            </div>
+
+            <!-- Upload Box -->
+            <div class="upload-box" id="drop-zone">
+                <input type="file" id="file-input" accept=".pdf,.docx,.txt" class="file-input">
+                <div class="upload-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="17 8 12 3 7 8"></polyline>
+                        <line x1="12" y1="3" x2="12" y2="15"></line>
+                    </svg>
+                </div>
+                <p class="upload-title">Choose a file or drag here</p>
+                <span class="upload-hint">PDF, DOCX, TXT up to 25MB</span>
+            </div>
+
+            <!-- Selected File Details (Initially Hidden) -->
+            <div class="file-info" id="file-info" style="display: none;">
+                <div class="file-text">
+                    <span class="file-name" id="file-name"></span>
+                    <span class="file-size" id="file-size"></span>
+                </div>
+                <button type="button" class="btn-remove" id="remove-btn" title="Remove file">&times;</button>
+            </div>
+
+            <!-- Upload Action Button -->
+            <button type="button" class="btn-primary" id="upload-btn">
+                Upload & Ingest
+            </button>
+
+            <!-- Cooldown Notice Badge (Hidden Initially) -->
+            <div class="cooldown-banner" id="cooldown-banner" style="display: none;">
+                <span class="cooldown-icon">⏳</span>
+                <span class="cooldown-text" id="cooldown-text">Rate limit pause: 60s remaining</span>
+            </div>
+
+            <!-- Active / Indexed Documents List -->
+            <div class="vault-section">
+                <div class="vault-header">
+                    <span class="vault-title">Indexed Documents</span>
+                    <span class="vault-count" id="files-count">0</span>
+                </div>
+                <div class="vault-list" id="uploaded-files-list">
+                    <div class="vault-empty" id="vault-empty">No documents uploaded yet.</div>
+                </div>
+            </div>
+        </aside>
+
+        <!-- 2. CHATTING SECTION (RIGHT) -->
+        <main class="chat-panel">
+            <header class="chat-header">
+                <h1>RAG Document Chat</h1>
+                <!-- Dynamic Backend Health Indicator -->
+                <div class="status-badge" id="health-status">
+                    <span class="status-dot"></span>
+                    <span class="status-text">Checking...</span>
+                </div>
+            </header>
+
+            <!-- Message Feed -->
+            <div class="chat-feed" id="chat-feed">
+                <!-- AI Welcome Message -->
+                <div class="message message-ai">
+                    <div class="message-content">
+                        <p>Hello! Upload your documents on the left and ask me any questions about them.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Bar -->
+            <footer class="chat-input-area">
+                <form class="input-form" id="chat-form" onsubmit="return false;">
+                    <input 
+                        type="text" 
+                        id="chat-input" 
+                        class="chat-input" 
+                        placeholder="Ask a question about your document..." 
+                        autocomplete="off"
+                    >
+                    <button type="submit" class="btn-send" id="send-btn" title="Send Question">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="22" y1="2" x2="11" y2="13"></line>
+                            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                        </svg>
+                    </button>
+                </form>
+            </footer>
+        </main>
+
+    </div>
+
+    <!-- MARKED.JS FOR RICH STRUCTURED MARKDOWN RENDERING -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- LINK JAVASCRIPT CONTROLLER -->
+    <script src="app.js"></script>
+</body>
+</html>
