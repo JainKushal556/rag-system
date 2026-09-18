@@ -1,19 +1,10 @@
 import psycopg2
-import os
-from dotenv import load_dotenv
-load_dotenv()
 
 
 top_k = 2
 def chunk_retriver(embedding : list):
     try:
-        con = psycopg2.connect(
-            host=os.getenv("DB_HOST"),
-            dbname=os.getenv("DB_DATABASE"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            port=os.getenv("DB_PORT")
-        )
+        con = psycopg2.connect(host="localhost", dbname="TASK", user="postgres", password="pgsql", port=5432)
         print("Connection Established To PgVector..")
         cur = con.cursor()
     except psycopg2.Error as e:
@@ -24,7 +15,7 @@ def chunk_retriver(embedding : list):
                     id, 
                     chunk, 
                     1 - (embedding <=> %s::vector) AS similarity
-                FROM rag_v1_embeddings
+                FROM document_embeddings
                 ORDER BY embedding <=> %s::vector ASC
                 LIMIT %s;
             """

@@ -2,7 +2,7 @@
 // NEXUSRAG — FRONTEND CONTROLLER (VANILLA JAVASCRIPT)
 // ==========================================================================
 
-const API_BASE_URL = "https://rag-system-0it5.onrender.com";
+const API_BASE_URL = "http://127.0.0.1:8000";
 
 // DOM Elements
 const healthStatus = document.getElementById("health-status");
