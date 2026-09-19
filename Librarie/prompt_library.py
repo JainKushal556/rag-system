@@ -43,15 +43,25 @@ def generate_interview_question(topic, difficulty="beginner"):
     """
 
 def answer_from_context(question, relevant_chunks):
-    prompt = "Context Information:\n"
-    for i, chunk in enumerate(relevant_chunks):
-        prompt += f"--- Chunk {i+1} ---\n{chunk[1]}\n\n"
-    prompt += f"""User Question:
-{question}
+    # Format clinic records concisely
+    context_text = ""
+    if relevant_chunks:
+        context_text = "\n".join([f"- Clinic Record {i+1}: {chunk[1]}" for i, chunk in enumerate(relevant_chunks)])
+    else:
+        context_text = "No clinic records available."
 
-Instructions:
-- Provide a well-structured, clear answer based strictly on the context provided above.
-- Structure the response with appropriate Markdown (headers, bullet points, bold key phrases, or code blocks) for maximum clarity and readability.
-- If the answer cannot be determined from the context, state: "I don't know based on the provided context."
+    prompt = f"""Clinic Information Records:
+{context_text}
+
+Caller's Spoken Query:
+"{question}"
+
+Instructions for Spoken Response:
+- Speak directly to the caller in 1 to 2 natural, warm sentences.
+- If the caller says "hi", "hello", or introduces themselves, greet them warmly and ask how you can assist them today.
+- Use the clinic records accurately if the question is about clinic services, doctors, timings, or policies.
+- If the answer is not in the records, politely offer to connect them to the front desk or arrange a callback.
+- DO NOT use markdown, bullet points, asterisks, or robotic phrases like "According to the context".
 """
     return prompt
+
