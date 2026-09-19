@@ -38,10 +38,13 @@ async def main():
         if clean_q in GREETINGS:
             retrieved_chunks = []
             cache_status = "GREETING_BYPASS"
+            embed_time_ms = 0
         else:
             is_cached = clean_q in EMBEDDING_CACHE
             cache_status = "CACHE_HIT (0ms)" if is_cached else "API_FETCH"
+            t_embed_start = time.time()
             query_embedding = await generate_query_embeddings(query)
+            embed_time_ms = round((time.time() - t_embed_start) * 1000)
             retrieved_chunks = chunk_retriver(query_embedding)
 
         # 2. Streaming Response
@@ -61,7 +64,7 @@ async def main():
             full_response += token
 
         total_time = round((time.time() - t_start), 2)
-        print(f"\n({total_time}s | First word: {ttft}ms | {cache_status})\n")
+        print(f"\n({total_time}s | First word: {ttft}ms | Embedding: {embed_time_ms}ms | {cache_status})\n")
 
         # 3. Save to Conversation History (remembers previous questions)
         chat_history.append({"role": "user", "content": query})
