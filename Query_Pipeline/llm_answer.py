@@ -13,21 +13,22 @@ client = AsyncGroq(api_key=groq_api_key)
 # Fast Groq LPU model (supports qwen/qwen3.8-27b or openai/gpt-oss-20b)
 MODEL_NAME = os.getenv("GROQ_MODEL", "qwen/qwen3.8-27b")
 
-async def generate_answer(query: str, relevant_chunks: list) -> str:
+async def generate_answer(query: str, relevant_chunks: list, chat_history: list = None) -> str:
     """
-    Generates a complete answer via Groq LPU with blazing speed (~200-500ms total).
-    Drop-in replacement for existing endpoints.
+    Generates a complete answer via Groq LPU with conversation history support.
     """
     system_instruction = document_qna()
     prompt = answer_from_context(query, relevant_chunks)
 
+    messages = [{"role": "system", "content": system_instruction}]
+    if chat_history:
+        messages.extend(chat_history)
+    messages.append({"role": "user", "content": prompt})
+
     try:
         response = await client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": prompt}
-            ],
+            messages=messages,
             temperature=0.3,
             max_tokens=600
         )
@@ -36,21 +37,23 @@ async def generate_answer(query: str, relevant_chunks: list) -> str:
         print(f"Error in Groq generate_answer: {e}")
         return f"Error: {str(e)}"
 
-async def generate_answer_stream(query: str, relevant_chunks: list):
+async def generate_answer_stream(query: str, relevant_chunks: list, chat_history: list = None):
     """
-    Streams tokens in real-time. First token emitted in ~120-180ms!
-    Ready for Server-Sent Events (SSE) or WebSockets.
+    Streams tokens in real-time with full conversation memory across the phone call.
+    First token emitted in ~120-180ms!
     """
     system_instruction = document_qna()
     prompt = answer_from_context(query, relevant_chunks)
 
+    messages = [{"role": "system", "content": system_instruction}]
+    if chat_history:
+        messages.extend(chat_history)
+    messages.append({"role": "user", "content": prompt})
+
     try:
         stream = await client.chat.completions.create(
             model=MODEL_NAME,
-            messages=[
-                {"role": "system", "content": system_instruction},
-                {"role": "user", "content": prompt}
-            ],
+            messages=messages,
             temperature=0.3,
             max_tokens=600,
             stream=True

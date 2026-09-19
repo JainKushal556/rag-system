@@ -5,7 +5,6 @@ top_k = 2
 def chunk_retriver(embedding : list):
     try:
         con = psycopg2.connect(host="localhost", dbname="TASK", user="postgres", password="pgsql", port=5432)
-        print("Connection Established To PgVector..")
         cur = con.cursor()
     except psycopg2.Error as e:
         print(f"Error connecting to PostgreSQL: {e}")
@@ -30,4 +29,3 @@ def chunk_retriver(embedding : list):
     finally:
         cur.close()
         con.close()
-        print("Connection Closed..")

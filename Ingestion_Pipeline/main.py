@@ -1,5 +1,6 @@
 from dotenv import load_dotenv
 load_dotenv() 
+import asyncio
 from pathlib import Path
 from Ingestion_Pipeline.textloader import filetotext
 from Ingestion_Pipeline.chunking import chunker
@@ -10,15 +11,14 @@ from Ingestion_Pipeline.chunking import chunker
 if __name__ == "__main__":
 
 
-    pdf = Path("Resources/RAG_Intern_Learning_Plan_Updated.pdf")
+    pdf = Path("AI_Receptionist_Doctor_Clinic_Data.pdf")
     # pdf = Path("DataSet.pdf")
     filetotext(pdf)
 
 
 
-    with open("TextConvertedData/pdftext.txt", 'r') as f:
-        text_content = f.read()
-        chunker(text_content)
+
+    asyncio.run(chunker())
 
 
 
