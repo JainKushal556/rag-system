@@ -47,6 +47,17 @@ async def main():
             embed_time_ms = round((time.time() - t_embed_start) * 1000)
             retrieved_chunks = chunk_retriver(query_embedding)
 
+        # Show Retrieved Chunks
+        if retrieved_chunks:
+            print("\n📚 [Retrieved Database Chunks]:")
+            for i, chunk in enumerate(retrieved_chunks):
+                chunk_id, chunk_text, similarity = chunk
+                preview = chunk_text.strip().replace("\n", " ")
+                if len(preview) > 130:
+                    preview = preview[:130] + "..."
+                print(f"  • Chunk {i+1} (ID: {chunk_id} | Similarity: {similarity:.4f}): \"{preview}\"")
+            print()
+
         # 2. Streaming Response
         sys.stdout.write("Receptionist: ")
         sys.stdout.flush()
@@ -75,6 +86,9 @@ async def main():
             chat_history = chat_history[-8:]
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    try:
+        asyncio.run(main())
+    except KeyboardInterrupt:
+        print("\n\n[Call Disconnected]")
 
 # python -m Query_Pipeline.main
