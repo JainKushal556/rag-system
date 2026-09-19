@@ -4,9 +4,11 @@ import sys
 from dotenv import load_dotenv
 load_dotenv()
 
-from Query_Pipeline.query_embedder import generate_query_embeddings
+from Query_Pipeline.query_embedder import generate_query_embeddings, EMBEDDING_CACHE
 from Query_Pipeline.chunk_retriver import chunk_retriver
 from Query_Pipeline.llm_answer import generate_answer_stream
+
+GREETINGS = {"hi", "hello", "hey", "hlo", "good morning", "good afternoon", "good evening", "namaste"}
 
 async def main():
     print("📞 [Call Connected: CarePlus Multispeciality Clinic]")
@@ -25,15 +27,22 @@ async def main():
         if not query:
             continue
         if query.lower() in ["exit", "quit", "bye"]:
-            print("\nAssistant: Thank you for calling CarePlus. Have a wonderful day!")
+            print("\nReceptionist: Thank you for calling CarePlus. Have a wonderful day!")
             print("[Call Ended]")
             break
 
         t_start = time.time()
+        clean_q = query.lower().strip().rstrip(".!?,")
 
-        # 1. Retrieval
-        query_embedding = await generate_query_embeddings(query)
-        retrieved_chunks = chunk_retriver(query_embedding)
+        # 1. Retrieval (Skip embedding for greetings, use In-Memory Cache for queries)
+        if clean_q in GREETINGS:
+            retrieved_chunks = []
+            cache_status = "GREETING_BYPASS"
+        else:
+            is_cached = clean_q in EMBEDDING_CACHE
+            cache_status = "CACHE_HIT (0ms)" if is_cached else "API_FETCH"
+            query_embedding = await generate_query_embeddings(query)
+            retrieved_chunks = chunk_retriver(query_embedding)
 
         # 2. Streaming Response
         sys.stdout.write("Receptionist: ")
@@ -52,7 +61,7 @@ async def main():
             full_response += token
 
         total_time = round((time.time() - t_start), 2)
-        print(f"\n({total_time}s | First word: {ttft}ms)\n")
+        print(f"\n({total_time}s | First word: {ttft}ms | {cache_status})\n")
 
         # 3. Save to Conversation History (remembers previous questions)
         chat_history.append({"role": "user", "content": query})
